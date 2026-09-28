@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MobaraCol | Soluciones tecnológicas integrales y páginas web premium</title>
+  <meta name="description" content="MobaraCol transforma la operación de tu empresa con software a medida: reservas para hoteles, pedidos para restaurantes, gestión de activos con QR/RFID y páginas web premium personalizadas.">
+  <meta name="keywords" content="software empresarial, transformación digital, sistema de reservas hotel, sistema de pedidos restaurante, gestión de activos, RFID, páginas web premium, diseño web a medida, Colombia">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#020304">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:site_name" content="MobaraCol">
+  <meta property="og:title" content="MobaraCol | Soluciones tecnológicas integrales">
+  <meta property="og:description" content="Software a medida y páginas web premium que transforman la operación de tu empresa.">
+  <meta property="og:image" content="assets/mobaracol-logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/mobaracol-isologo.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>document.documentElement.classList.add('js')</script>
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js" } }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "MobaraCol",
+    "description": "Soluciones tecnológicas integrales: sistemas de reservas para hoteles, pedidos para restaurantes, gestión e identificación de activos y páginas web premium personalizadas.",
+    "logo": "assets/mobaracol-logo.png",
+    "email": "contacto@mobaracol.com",
+    "telephone": "+57 300 000 0000",
+    "address": { "@type": "PostalAddress", "addressLocality": "Bogotá", "addressCountry": "CO" }
+  }
+  </script>
+</head>
+<body>
+  <!-- ============ LOADER ============ -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__panel loader__panel--top"></div>
+    <div class="loader__panel loader__panel--bottom"></div>
+    <div class="loader__center">
+      <div class="loader__mark">
+        <img class="loader__base" src="assets/mobaracol-isologo.png" alt="" width="600" height="430">
+        <img class="loader__fill" src="assets/mobaracol-isologo.png" alt="" width="600" height="430">
+        <span class="loader__scan"></span>
+      </div>
+      <div class="loader__meta">
+        <span>MobaraCol<small>Soluciones tecnológicas integrales</small></span>
+        <span class="loader__count" id="loader-count">000</span>
+      </div>
+      <div class="loader__bar"><i id="loader-bar"></i></div>
+    </div>
+  </div>
+
+  <canvas id="webgl" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"><em class="cursor__label"></em></span></div>
+  <div class="progress" aria-hidden="true"><i id="progress"></i></div>
+  <div class="puzzle-hud" id="puzzle-hud" aria-hidden="true">
+    <div class="puzzle-hud__grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="puzzle-hud__meta">
+      <span class="mono">Armando tu operación</span>
+      <strong><span id="ph-count">0</span><small>/9</small></strong>
+      <em id="ph-last">Desliza para sumar piezas</em>
+    </div>
+  </div>
+
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a href="#inicio" class="nav__brand" aria-label="MobaraCol, ir al inicio">
+        <img src="assets/mobaracol-logo-light.png" alt="MobaraCol — Soluciones tecnológicas integrales" width="600" height="121">
+      </a>
+      <nav class="nav__menu" aria-label="Principal">
+        <ul>
+          <li><a href="#inicio" class="nav__link">Inicio</a></li>
+          <li><a href="#soluciones" class="nav__link">Soluciones</a></li>
+          <li><a href="#web-premium" class="nav__link">Web Premium</a></li>
+          <li><a href="#nosotros" class="nav__link">Nosotros</a></li>
+          <li><a href="#casos" class="nav__link">Casos de éxito</a></li>
+          <li><a href="#contacto" class="nav__link">Contacto</a></li>
+        </ul>
+      </nav>
+      <a href="#contacto" class="btn btn--primary btn--sm nav__cta" data-magnetic>Solicitar demo</a>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-overlay">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="menu-overlay" id="menu-overlay" aria-hidden="true">
+    <nav class="container" aria-label="Menú móvil">
+      <ul>
+        <li style="--i:0"><a href="#inicio"><small>01</small>Inicio</a></li>
+        <li style="--i:1"><a href="#soluciones"><small>02</small>Soluciones</a></li>
+        <li style="--i:2"><a href="#web-premium"><small>03</small>Web Premium</a></li>
+        <li style="--i:3"><a href="#nosotros"><small>04</small>Nosotros</a></li>
+        <li style="--i:4"><a href="#casos"><small>05</small>Casos de éxito</a></li>
+        <li style="--i:5"><a href="#contacto"><small>06</small>Contacto</a></li>
+      </ul>
+      <a href="#contacto" class="btn btn--accent btn--lg menu-overlay__cta" style="--i:6">Solicitar demo</a>
+    </nav>
+  </div>
+
+  <main id="main">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <div class="container hero__inner">
+        <p class="hero__kicker" data-hero-fade><span class="pulse"></span>Soluciones tecnológicas integrales</p>
+        <h1 class="hero__title" id="hero-title">
+          <span class="hl" data-split="chars">Tecnología</span>
+          <span class="hl" data-split="chars">que <em class="grad-text">impulsa</em></span>
+          <span class="hl" data-split="chars">tu operación.</span>
+        </h1>
+        <div class="hero__bottom">
+          <p class="hero__lead" data-hero-fade>Transformamos operaciones empresariales con soluciones tecnológicas a medida, eficientes y escalables. Del hotel al restaurante, de la bodega a tu próxima página web premium.</p>
+          <div class="hero__actions" data-hero-fade>
+            <a href="#soluciones" class="btn btn--primary btn--lg" data-magnetic>
+              Descubre nuestras soluciones
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a href="#contacto" class="btn btn--ghost btn--lg" data-magnetic>Solicitar demo</a>
+          </div>
+        </div>
+      </div>
+
+      <ul class="hud" aria-hidden="true">
+        <li class="hud__item hud__item--1" data-hero-fade><i></i><span>[01]</span> Reservas hoteleras</li>
+        <li class="hud__item hud__item--2" data-hero-fade><i></i><span>[02]</span> Pedidos en restaurantes</li>
+        <li class="hud__item hud__item--3" data-hero-fade><i></i><span>[03]</span> Activos QR / RFID</li>
+        <li class="hud__item hud__item--4" data-hero-fade><i></i><span>[04]</span> Web premium</li>
+      </ul>
+
+      <div class="container hero__meta">
+        <span class="hero__scroll" data-hero-fade><span class="hero__scroll-line"></span>Desliza para explorar</span>
+        <span class="mono" data-hero-fade>Bogotá, CO — 04.71° N · 74.07° O</span>
+      </div>
+    </section>
+
+    <!-- ============ TICKER ============ -->
+    <section class="ticker" aria-label="Lo que hacemos">
+      <div class="ticker__row" data-ticker="1">
+        <div class="ticker__track">
+          <span>Reservas</span><b>✦</b><span class="outline">Pedidos</span><b>✦</b><span>Activos</span><b>✦</b><span class="outline">Web Premium</span><b>✦</b><span>Automatización</span><b>✦</b>
+          <span aria-hidden="true">Reservas</span><b>✦</b><span class="outline" aria-hidden="true">Pedidos</span><b>✦</b><span aria-hidden="true">Activos</span><b>✦</b><span class="outline" aria-hidden="true">Web Premium</span><b>✦</b><span aria-hidden="true">Automatización</span><b>✦</b>
+        </div>
+      </div>
+      <div class="ticker__row ticker__row--rev" data-ticker="-1" aria-hidden="true">
+        <div class="ticker__track">
+          <span class="outline">Eficiencia</span><b>✦</b><span>Escalabilidad</span><b>✦</b><span class="outline">Datos en tiempo real</span><b>✦</b><span>Resultados</span><b>✦</b>
+          <span class="outline">Eficiencia</span><b>✦</b><span>Escalabilidad</span><b>✦</b><span class="outline">Datos en tiempo real</span><b>✦</b><span>Resultados</span><b>✦</b>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MANIFIESTO / NOSOTROS ============ -->
+    <section class="manifesto" id="nosotros" aria-labelledby="manifesto-title">
+      <div class="container manifesto__inner">
+        <p class="eyebrow" id="manifesto-title">Nosotros — Nuestra misión</p>
+        <p class="manifesto__text" data-split="words">Impulsamos la eficacia operativa de las empresas con tecnologías modernas y revolucionarias. Diseñamos software a medida que elimina fricciones, conecta tus procesos y convierte cada operación en una <em>ventaja competitiva.</em></p>
+        <div class="manifesto__foot">
+          <span class="mono">Ingeniería</span><span class="mono">+</span><span class="mono">Negocio</span><span class="mono">+</span><span class="mono">Acompañamiento</span><span class="mono">=</span><span class="mono">Tu operación, pieza por pieza</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SOLUCIONES (horizontal) ============ -->
+    <section class="solutions" id="soluciones" aria-labelledby="sol-title">
+      <div class="solutions__pin">
+        <div class="solutions__viewport">
+        <div class="solutions__track">
+          <div class="solutions__intro">
+            <p class="eyebrow">Nuestras soluciones</p>
+            <h2 id="sol-title" data-split="words">Plataformas para la <em class="grad-text">operación real.</em></h2>
+            <p class="solutions__lead">Tres líneas de producto probadas en campo, adaptadas a tus procesos e integradas con las herramientas que ya usas. Cada una es una pieza de tu operación.</p>
+            <span class="solutions__hint mono"><span class="solutions__hint-line"></span>Desliza</span>
+          </div>
+
+          <article class="sol-card spot" data-tilt>
+            <header class="sol-card__head">
+              <span class="sol-card__num mono">01 / 03</span>
+              <span class="sol-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/><path d="M16 9h2a2 2 0 0 1 2 2v10"/><path d="M3 21h18"/><path d="M8 7h4M8 11h4M8 15h4"/></svg></span>
+            </header>
+            <figure class="sol-card__mock" aria-hidden="true">
+              <svg viewBox="0 0 320 170">
+                <rect x=".5" y=".5" width="319" height="169" rx="14" fill="#0B1220" stroke="#1B2536"/>
+                <text x="18" y="30" font-size="12" font-weight="700" fill="#EEF3FA" font-family="Manrope, sans-serif">Disponibilidad · Octubre</text>
+                <rect x="232" y="16" width="72" height="22" rx="11" fill="#0E3A4A"/>
+                <text x="268" y="31" font-size="10.5" font-weight="700" fill="#7BE3FA" text-anchor="middle" font-family="Inter, sans-serif">92% ocup.</text>
+                <g fill="#141D2C">
+                  <rect x="18" y="52" width="36" height="28" rx="6"/><rect x="60" y="52" width="36" height="28" rx="6" fill="#1560BD"/><rect x="102" y="52" width="36" height="28" rx="6" fill="#1560BD"/><rect x="144" y="52" width="36" height="28" rx="6"/><rect x="186" y="52" width="36" height="28" rx="6" fill="#22C7F0"/><rect x="228" y="52" width="36" height="28" rx="6" fill="#1560BD"/><rect x="270" y="52" width="32" height="28" rx="6"/>
+                  <rect x="18" y="86" width="36" height="28" rx="6" fill="#22C7F0"/><rect x="60" y="86" width="36" height="28" rx="6" fill="#1560BD"/><rect x="102" y="86" width="36" height="28" rx="6"/><rect x="144" y="86" width="36" height="28" rx="6" fill="#1560BD"/><rect x="186" y="86" width="36" height="28" rx="6" fill="#1560BD"/><rect x="228" y="86" width="36" height="28" rx="6"/><rect x="270" y="86" width="32" height="28" rx="6" fill="#22C7F0"/>
+                  <rect x="18" y="120" width="36" height="28" rx="6" fill="#1560BD"/><rect x="60" y="120" width="36" height="28" rx="6"/><rect x="102" y="120" width="36" height="28" rx="6" fill="#22C7F0"/><rect x="144" y="120" width="36" height="28" rx="6" fill="#1560BD"/><rect x="186" y="120" width="36" height="28" rx="6"/><rect x="228" y="120" width="36" height="28" rx="6" fill="#1560BD"/><rect x="270" y="120" width="32" height="28" rx="6" fill="#1560BD"/>
+                </g>
+              </svg>
+            </figure>
+            <h3>Sistemas de reservas para hoteles</h3>
+            <p>Controla tu inventario de habitaciones y maximiza la ocupación desde una sola plataforma.</p>
+            <ul class="chips">
+              <li>Disponibilidad en tiempo real</li>
+              <li>Check-in / check-out digital</li>
+              <li>Integración con OTAs</li>
+              <li>Reportes de ocupación</li>
+            </ul>
+            <a href="#contacto" class="link-arrow">Solicitar demo <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </article>
+
+          <article class="sol-card spot" data-tilt>
+            <header class="sol-card__head">
+              <span class="sol-card__num mono">02 / 03</span>
+              <span class="sol-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18"/><path d="M18 21V3c-2 1.5-3 4-3 7s1 4 3 4"/></svg></span>
+            </header>
+            <figure class="sol-card__mock" aria-hidden="true">
+              <svg viewBox="0 0 320 170">
+                <rect x=".5" y=".5" width="319" height="169" rx="14" fill="#0B1220" stroke="#1B2536"/>
+                <rect x="18" y="18" width="92" height="92" rx="10" fill="#EEF3FA"/>
+                <g fill="#050608">
+                  <rect x="28" y="28" width="22" height="22" rx="3"/><rect x="78" y="28" width="22" height="22" rx="3"/><rect x="28" y="78" width="22" height="22" rx="3"/>
+                  <rect x="56" y="30" width="8" height="8"/><rect x="60" y="46" width="8" height="8"/><rect x="56" y="60" width="8" height="8"/><rect x="70" y="58" width="8" height="8"/><rect x="84" y="62" width="8" height="8"/><rect x="62" y="80" width="8" height="8"/><rect x="78" y="80" width="8" height="8"/><rect x="88" y="92" width="8" height="8"/><rect x="36" y="62" width="8" height="8"/>
+                </g>
+                <g fill="#EEF3FA"><rect x="34" y="34" width="10" height="10" rx="2"/><rect x="84" y="34" width="10" height="10" rx="2"/><rect x="34" y="84" width="10" height="10" rx="2"/></g>
+                <text x="64" y="134" font-size="10.5" font-weight="600" fill="#8B97A8" text-anchor="middle" font-family="Inter, sans-serif">Escanea y pide</text>
+                <g font-family="Inter, sans-serif" font-size="11">
+                  <rect x="128" y="18" width="176" height="40" rx="10" fill="#141D2C"/>
+                  <text x="142" y="42" font-weight="700" fill="#EEF3FA">Mesa 7 · 3 ítems</text>
+                  <rect x="246" y="28" width="48" height="20" rx="10" fill="#3A2A0E"/><text x="270" y="42" font-size="9.5" font-weight="700" fill="#F5B94A" text-anchor="middle">Cocina</text>
+                  <rect x="128" y="65" width="176" height="40" rx="10" fill="#141D2C"/>
+                  <text x="142" y="89" font-weight="700" fill="#EEF3FA">Delivery #882</text>
+                  <rect x="246" y="75" width="48" height="20" rx="10" fill="#0E3A2A"/><text x="270" y="89" font-size="9.5" font-weight="700" fill="#34D399" text-anchor="middle">Listo</text>
+                  <rect x="128" y="112" width="176" height="40" rx="10" fill="#141D2C"/>
+                  <text x="142" y="136" font-weight="700" fill="#EEF3FA">Barra · 2 ítems</text>
+                  <rect x="246" y="122" width="48" height="20" rx="10" fill="#0E3A4A"/><text x="270" y="136" font-size="9.5" font-weight="700" fill="#7BE3FA" text-anchor="middle">Nuevo</text>
+                </g>
+              </svg>
+            </figure>
+            <h3>Sistemas de pedidos para restaurantes</h3>
+            <p>Del menú QR a la cocina sin papel: cada pedido fluye rápido, trazable y sin errores.</p>
+            <ul class="chips">
+              <li>Pedidos digitales / QR</li>
+              <li>Cocina en tiempo real</li>
+              <li>Integración con delivery</li>
+              <li>Inventario de insumos</li>
+            </ul>
+            <a href="#contacto" class="link-arrow">Solicitar demo <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </article>
+
+          <article class="sol-card spot" data-tilt>
+            <header class="sol-card__head">
+              <span class="sol-card__num mono">03 / 03</span>
+              <span class="sol-card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></span>
+            </header>
+            <figure class="sol-card__mock" aria-hidden="true">
+              <svg viewBox="0 0 320 170">
+                <rect x=".5" y=".5" width="319" height="169" rx="14" fill="#0B1220" stroke="#1B2536"/>
+                <g stroke="#141D2C" stroke-width="1"><path d="M18 50h284M18 85h284M18 120h284M70 18v134M130 18v134M190 18v134M250 18v134"/></g>
+                <path d="M40 130 C 90 120, 110 60, 160 70 S 240 40, 280 50" fill="none" stroke="#1E7FE0" stroke-width="2.5" stroke-dasharray="5 6" stroke-linecap="round"/>
+                <circle cx="160" cy="70" r="26" fill="#22C7F0" opacity=".12"/>
+                <circle cx="160" cy="70" r="16" fill="#22C7F0" opacity=".22"/>
+                <circle cx="160" cy="70" r="7" fill="#22C7F0" stroke="#0B1220" stroke-width="3"/>
+                <circle cx="40" cy="130" r="6" fill="#EEF3FA" stroke="#0B1220" stroke-width="3"/>
+                <circle cx="280" cy="50" r="6" fill="#1E7FE0" stroke="#0B1220" stroke-width="3"/>
+                <g font-family="Inter, sans-serif">
+                  <rect x="186" y="96" width="118" height="56" rx="10" fill="#EEF3FA"/>
+                  <text x="198" y="116" font-size="10" fill="#55657E">RFID · MB-0421</text>
+                  <text x="198" y="136" font-size="12.5" font-weight="700" fill="#050608">Montacargas 04</text>
+                  <circle cx="290" cy="112" r="4" fill="#15935B"/>
+                </g>
+              </svg>
+            </figure>
+            <h3>Gestión e identificación de activos</h3>
+            <p>Sabe qué tienes, dónde está y en qué estado, con trazabilidad completa de cada activo.</p>
+            <ul class="chips">
+              <li>Inventario QR / RFID</li>
+              <li>Trazabilidad</li>
+              <li>Mantenimiento predictivo</li>
+              <li>Estado y ubicación</li>
+            </ul>
+            <a href="#contacto" class="link-arrow">Solicitar demo <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </article>
+        </div>
+        </div>
+        <div class="stage" data-stage="sol" aria-hidden="true"></div>
+        <div class="solutions__progress" aria-hidden="true"><i></i></div>
+      </div>
+    </section>
+
+    <!-- ============ WEB PREMIUM ============ -->
+    <section class="premium" id="web-premium" aria-labelledby="premium-title">
+      <div class="container">
+        <div class="split">
+          <header class="section__head section__head--left">
+            <p class="eyebrow"><span class="badge">Nuevo</span> Páginas web premium</p>
+            <h2 id="premium-title">Páginas web premium, <em class="grad-text">hechas a tu medida.</em></h2>
+            <p>Diseñamos y desarrollamos sitios que se sienten como producto: experiencias 3D, animaciones de scroll, rendimiento extremo y una estética que eleva tu marca. Como la que estás viendo.</p>
+          </header>
+          <div class="stage" data-stage="premium" aria-hidden="true"></div>
+        </div>
+
+        <div class="browser-stage">
+          <div class="browser" id="browser">
+            <div class="browser__bar">
+              <span class="browser__dots"><i></i><i></i><i></i></span>
+              <span class="browser__url"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>tumarca.com</span>
+              <span class="browser__spacer"></span>
+            </div>
+            <div class="browser__screen" aria-hidden="true">
+              <div class="site">
+                <div class="site__nav"><b>TU<span>MARCA</span></b><span></span><span></span><span></span><i>Comprar</i></div>
+                <div class="site__hero">
+                  <div class="site__copy">
+                    <small>Colección 2026</small>
+                    <strong>Tu marca en <span class="grad-text">otra dimensión.</span></strong>
+                    <p></p><p class="short"></p>
+                    <div class="site__btns"><i></i><i class="ghost"></i></div>
+                  </div>
+                  <div class="site__orb"><span></span><span></span><span></span></div>
+                </div>
+                <div class="site__cards"><i></i><i></i><i></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="browser-stage__stat stat-a"><strong>98</strong><span>Performance<br>Lighthouse</span></div>
+          <div class="browser-stage__stat stat-b"><strong>&lt;1s</strong><span>Tiempo de<br>carga</span></div>
+        </div>
+
+        <div class="premium__grid">
+          <article class="feature spot" data-ee>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></span>
+            <h3>Diseño 100% a medida</h3>
+            <p>UI/UX único alineado a tu marca. Sin plantillas, sin atajos.</p>
+          </article>
+          <article class="feature spot" data-ee>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></span>
+            <h3>Experiencias 3D y animación</h3>
+            <p>WebGL, scroll storytelling y microinteracciones que enamoran.</p>
+          </article>
+          <article class="feature spot" data-ee>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+            <h3>Rendimiento y SEO</h3>
+            <p>Core Web Vitals optimizados y posicionamiento desde el día uno.</p>
+          </article>
+          <article class="feature spot" data-ee>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span>
+            <h3>Autoadministrable</h3>
+            <p>Edita textos, imágenes y productos sin depender de nadie.</p>
+          </article>
+          <article class="feature spot" data-ee>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+            <h3>E-commerce y pagos</h3>
+            <p>Tiendas en línea con PSE, tarjetas, inventario y envíos integrados.</p>
+          </article>
+          <article class="feature spot" data-ee>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+            <h3>Hosting, seguridad y soporte</h3>
+            <p>SSL, copias de seguridad, monitoreo y mejoras continuas.</p>
+          </article>
+        </div>
+
+        <div class="premium__foot" data-ee>
+          <ul class="chips chips--lg">
+            <li>Landing pages</li><li>Sitios corporativos</li><li>E-commerce</li><li>Web apps</li><li>Portafolios</li><li>Experiencias 3D</li>
+          </ul>
+          <a href="#contacto" class="btn btn--accent btn--lg" data-magnetic>Cotizar mi página premium <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ POR QUÉ ============ -->
+    <section class="why" id="por-que" aria-labelledby="why-title">
+      <div class="container split why__inner">
+        <div class="split__main">
+        <header class="why__head">
+          <p class="eyebrow">¿Por qué MobaraCol?</p>
+          <h2 id="why-title">Tecnología que se traduce en <em class="grad-text">resultados.</em></h2>
+          <p>Combinamos ingeniería de software, conocimiento del negocio y acompañamiento cercano para que cada peso invertido regrese como eficiencia.</p>
+        </header>
+        <div class="why__grid">
+          <article class="why-card spot">
+            <span class="why-card__num mono">01</span>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg></span>
+            <h3>Tecnología de punta</h3>
+            <p>Arquitecturas cloud, APIs abiertas, IoT y analítica en tiempo real, listas para crecer contigo.</p>
+          </article>
+          <article class="why-card spot">
+            <span class="why-card__num mono">02</span>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 14a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2z"/><path d="M3 14a2 2 0 0 0 2 2h1v-6H5a2 2 0 0 0-2 2z"/><path d="M18 16v1a3 3 0 0 1-3 3h-3"/></svg></span>
+            <h3>Soporte 24/7</h3>
+            <p>Un equipo humano que responde cuando lo necesitas, con SLA claros y monitoreo proactivo.</p>
+          </article>
+          <article class="why-card spot">
+            <span class="why-card__num mono">03</span>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span>
+            <h3>Implementación rápida</h3>
+            <p>Metodología ágil con entregas por fases: resultados visibles desde las primeras semanas.</p>
+          </article>
+          <article class="why-card spot">
+            <span class="why-card__num mono">04</span>
+            <span class="feature__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></span>
+            <h3>Resultados medibles</h3>
+            <p>Definimos KPIs desde el diagnóstico y los medimos con tableros en tiempo real.</p>
+          </article>
+        </div>
+        </div>
+        <div class="stage" data-stage="why" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- ============ PROCESO (stacking cards) ============ -->
+    <section class="process" id="proceso" aria-labelledby="proc-title">
+      <div class="container split">
+        <div class="split__main">
+        <header class="section__head section__head--left">
+          <p class="eyebrow">Cómo trabajamos</p>
+          <h2 id="proc-title">De la idea al <em class="grad-text">impacto</em>, en cuatro pasos.</h2>
+        </header>
+        <ol class="stack">
+          <li class="stack__card" style="--i:0">
+            <span class="stack__num">01</span>
+            <div class="stack__body">
+              <h3>Diagnóstico</h3>
+              <p>Mapeamos tus procesos, cuellos de botella y objetivos. Definimos los KPIs con los que mediremos el éxito.</p>
+              <ul class="chips"><li>Entrevistas</li><li>Mapa de procesos</li><li>KPIs</li></ul>
+            </div>
+            <span class="stack__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+          </li>
+          <li class="stack__card" style="--i:1">
+            <span class="stack__num">02</span>
+            <div class="stack__body">
+              <h3>Diseño de solución</h3>
+              <p>Arquitectura, prototipos y flujos validados contigo antes de escribir una sola línea de código.</p>
+              <ul class="chips"><li>Arquitectura</li><li>Prototipos UX</li><li>Plan de entregas</li></ul>
+            </div>
+            <span class="stack__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></span>
+          </li>
+          <li class="stack__card" style="--i:2">
+            <span class="stack__num">03</span>
+            <div class="stack__body">
+              <h3>Implementación</h3>
+              <p>Desarrollo ágil, integraciones, migración de datos y capacitación de tu equipo, por fases y sin frenar tu operación.</p>
+              <ul class="chips"><li>Sprints</li><li>Integraciones</li><li>Capacitación</li></ul>
+            </div>
+            <span class="stack__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span>
+          </li>
+          <li class="stack__card" style="--i:3">
+            <span class="stack__num">04</span>
+            <div class="stack__body">
+              <h3>Soporte continuo</h3>
+              <p>Monitoreo 24/7, mejoras evolutivas y acompañamiento para que la solución crezca al ritmo de tu empresa.</p>
+              <ul class="chips"><li>Monitoreo</li><li>SLA</li><li>Mejora continua</li></ul>
+            </div>
+            <span class="stack__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6M14.8 14.8l3.6 3.6M14.8 9.2l3.6-3.6M5.6 18.4l3.6-3.6"/></svg></span>
+          </li>
+        </ol>
+        </div>
+        <div class="stage" data-stage="proc" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- ============ IMPACTO ============ -->
+    <section class="impact" id="impacto" aria-labelledby="impact-title">
+      <div class="container">
+        <p class="eyebrow" id="impact-title">Impacto en cifras</p>
+        <dl class="impact__grid">
+          <div class="stat">
+            <dd><span data-count="68" data-prefix="−">0</span><em>%</em></dd>
+            <dt>Reducción de tiempos operativos</dt>
+          </div>
+          <div class="stat">
+            <dd><span data-count="150" data-prefix="+">0</span></dd>
+            <dt>Empresas atendidas</dt>
+          </div>
+          <div class="stat">
+            <dd><span data-count="10" data-prefix="+">0</span></dd>
+            <dt>Años de experiencia</dt>
+          </div>
+          <div class="stat">
+            <dd><span data-count="99.9" data-decimals="1">0</span><em>%</em></dd>
+            <dt>Disponibilidad de plataforma</dt>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ============ CASOS ============ -->
+    <section class="cases" id="casos" aria-labelledby="cases-title">
+      <div class="container">
+        <header class="section__head" data-ee>
+          <p class="eyebrow">Casos de éxito</p>
+          <h2 id="cases-title">Empresas que ya <em class="grad-text">operan mejor.</em></h2>
+        </header>
+        <div class="cases__grid">
+          <figure class="case spot" data-tilt>
+            <span class="case__kpi">−45% <small>tiempo de check-in</small></span>
+            <blockquote>“Pasamos de hojas de cálculo a una plataforma que sincroniza todas nuestras OTAs. La ocupación subió y el equipo de recepción por fin respira.”</blockquote>
+            <figcaption>
+              <span class="case__logo" style="--c1:#1560BD;--c2:#22C7F0">BC</span>
+              <span><b>Laura Méndez</b><small>Gerente General · Hotel Brisas del Caribe</small></span>
+            </figcaption>
+          </figure>
+          <figure class="case spot" data-tilt>
+            <span class="case__kpi">+32% <small>rotación de mesas</small></span>
+            <blockquote>“Con el menú QR y la pantalla de cocina, los pedidos llegan sin errores y el inventario se descuenta solo. Abrimos dos sedes sin aumentar la carga administrativa.”</blockquote>
+            <figcaption>
+              <span class="case__logo" style="--c1:#0B1F3A;--c2:#1E7FE0">SA</span>
+              <span><b>Andrés Rojas</b><small>Director de Operaciones · Grupo Sabor Andino</small></span>
+            </figcaption>
+          </figure>
+          <figure class="case spot" data-tilt>
+            <span class="case__kpi">100% <small>activos trazables</small></span>
+            <blockquote>“Etiquetamos más de 3.000 activos con RFID en seis semanas. Hoy sabemos dónde está cada equipo y anticipamos su mantenimiento.”</blockquote>
+            <figcaption>
+              <span class="case__logo" style="--c1:#0A8FB8;--c2:#34D399">LN</span>
+              <span><b>Camila Torres</b><small>Jefe de Logística · LogiNorte S.A.S.</small></span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="cta" id="contacto" aria-labelledby="cta-title">
+      <div class="cta__stage" id="cta-stage">
+        <div class="container">
+          <p class="eyebrow">Consultoría gratuita</p>
+          <h2 id="cta-title" data-split="words">Hagamos que tu operación <em class="grad-text">funcione mejor.</em></h2>
+        </div>
+      </div>
+      <div class="container">
+        <div class="cta__card" id="cta-card">
+          <div class="cta__copy">
+            <h3>Agenda tu consultoría gratuita</h3>
+            <p>En 30 minutos analizamos tus procesos y te mostramos, con números, dónde está tu mayor oportunidad de eficiencia.</p>
+            <ul class="checklist">
+              <li>Sin costo ni compromiso</li>
+              <li>Diagnóstico inicial con KPIs</li>
+              <li>Demo personalizada de la solución</li>
+            </ul>
+          </div>
+          <form class="cta__form" id="contact-form" novalidate>
+            <div class="field">
+              <label for="f-name">Nombre</label>
+              <input id="f-name" name="nombre" type="text" autocomplete="name" required placeholder="Tu nombre">
+            </div>
+            <div class="field">
+              <label for="f-company">Empresa</label>
+              <input id="f-company" name="empresa" type="text" autocomplete="organization" required placeholder="Nombre de tu empresa">
+            </div>
+            <div class="field">
+              <label for="f-email">Correo corporativo</label>
+              <input id="f-email" name="correo" type="email" autocomplete="email" required placeholder="nombre@empresa.com">
+            </div>
+            <div class="field">
+              <label for="f-solution">Solución de interés</label>
+              <select id="f-solution" name="solucion">
+                <option>Sistema de reservas para hoteles</option>
+                <option>Sistema de pedidos para restaurantes</option>
+                <option>Gestión e identificación de activos</option>
+                <option>Página web premium personalizada</option>
+                <option>Solución a medida</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn--accent btn--lg btn--block" data-magnetic>
+              Agendar consultoría gratuita
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <p class="cta__note" id="form-note" role="status">Te respondemos en menos de 24 horas hábiles.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <img src="assets/mobaracol-logo-light.png" alt="MobaraCol — Soluciones tecnológicas integrales" width="600" height="121" loading="lazy">
+        <p>Impulsamos la eficacia operativa de las empresas con tecnologías modernas, eficientes y escalables.</p>
+        <ul class="socials" aria-label="Redes sociales">
+          <li><a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a></li>
+          <li><a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg></a></li>
+          <li><a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a></li>
+          <li><a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M4 4h4.5L20 20h-4.5z"/><path d="M20 4l-6.5 7M4 20l6.5-7"/></svg></a></li>
+        </ul>
+      </div>
+      <nav class="footer__col" aria-label="Soluciones">
+        <h3>Soluciones</h3>
+        <ul>
+          <li><a href="#soluciones">Reservas para hoteles</a></li>
+          <li><a href="#soluciones">Pedidos para restaurantes</a></li>
+          <li><a href="#soluciones">Gestión de activos</a></li>
+          <li><a href="#web-premium">Páginas web premium</a></li>
+        </ul>
+      </nav>
+      <nav class="footer__col" aria-label="Empresa">
+        <h3>Empresa</h3>
+        <ul>
+          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#proceso">Cómo trabajamos</a></li>
+          <li><a href="#casos">Casos de éxito</a></li>
+          <li><a href="#contacto">Solicitar demo</a></li>
+        </ul>
+      </nav>
+      <address class="footer__col">
+        <h3>Contacto</h3>
+        <ul class="footer__contact">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><a href="mailto:contacto@mobaracol.com">contacto@mobaracol.com</a></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:+573000000000">+57 300 000 0000</a></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Bogotá, Colombia</span></li>
+        </ul>
+      </address>
+    </div>
+
+    <div class="footer__word" aria-hidden="true"><span data-split="chars">MOBARACOL</span></div>
+
+    <div class="container footer__bottom">
+      <p>© <span id="year">2026</span> MobaraCol S.A.S. Todos los derechos reservados.</p>
+      <ul>
+        <li><a href="#">Aviso legal</a></li>
+        <li><a href="#">Política de privacidad</a></li>
+        <li><a href="#">Términos y condiciones</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>
