@@ -565,7 +565,7 @@
       const useClaude = st.settings.provider === 'claude' && st.settings.apiKey;
       const k = m.empty ? null : m.kpis;
       view.innerHTML =
-        pageHead('Capa 3 · Inteligencia artificial', 'Asistente financiero', 'Pregúntale en tus palabras. Responde con los números que calculó el motor financiero, no con suposiciones.', '<a class="ai-status' + (useClaude ? ' is-claude' : '') + '" href="#/ajustes"><i></i><span>' + (useClaude ? 'Claude · ' + esc(AI.MODEL) : 'Motor local') + '</span></a><button class="btn btn--sm" type="button" id="clearChat">' + icon('refresh') + 'Nueva conversación</button>') +
+        pageHead('Capa 3 · Inteligencia artificial', 'Asistente financiero', 'Pregúntale en tus palabras. Responde con los números que calculó el motor financiero, no con suposiciones' + (useClaude ? ', y puede correr simulaciones del motor para responderte.' : '.'), '<a class="ai-status' + (useClaude ? ' is-claude' : '') + '" href="#/ajustes"><i></i><span>' + (useClaude ? 'Claude · análisis ' + esc((AI.EFFORTS[st.settings.effort] || 'Profundo').toLowerCase()) : 'Motor local') + '</span></a><button class="btn btn--sm" type="button" id="clearChat">' + icon('refresh') + 'Nueva conversación</button>') +
         '<div class="chat-layout"><section class="chat" aria-label="Conversación"><div class="chat__log" id="chatLog"></div>' +
         '<form class="composer" id="composer"><label class="sr-only" for="chatInput">Tu pregunta</label><textarea id="chatInput" rows="1" placeholder="Ej.: ¿Por qué me estoy quedando sin efectivo si estoy vendiendo más?"></textarea><button class="send-btn" type="submit" id="sendBtn" aria-label="Enviar">' + icon('send') + '</button></form></section>' +
         '<aside class="context-panel">' +
@@ -665,27 +665,17 @@
           await wait(200);
           advance(2);
           const history = buildHistory(st.chat.slice(0, -1));
-          let article = null;
-          let raf = 0;
-          let latest = '';
-          const paint = () => {
-            raf = 0;
-            if (!article) {
-              pending.innerHTML = '<span class="msg__avatar">' + icon('sparkles') + '</span><article class="answer"><div class="answer__md cursor-blink"></div></article>';
-              article = $('.answer__md', pending);
-            }
-            article.innerHTML = AI.md(latest);
-            scrollChat(log);
-          };
+          const live = liveAnswer(pending, log);
           let res;
           try {
-            const { stream, done } = await AI.askClaude({ apiKey: st.settings.apiKey, question: q, history, model: m, onText: (d, snap) => { latest = snap; if (!raf) raf = requestAnimationFrame(paint); } });
+            const { stream, done } = await AI.askClaude({ apiKey: st.settings.apiKey, question: q, history, model: m, effort: st.settings.effort, onText: live.text, onThinking: live.thinking, onTool: live.tool });
             st.streaming = stream;
             res = await done;
           } catch (err) {
             st.streaming = null;
+            live.stop();
             if (err.aborted) {
-              const msg = { role: 'assistant', kind: 'claude', text: (latest || '') + '\n\n*Respuesta detenida.*', at: Date.now(), model: AI.MODEL };
+              const msg = { role: 'assistant', kind: 'claude', text: (err.partial || live.latest() || '') + '\n\n*Respuesta detenida.*', at: Date.now(), model: AI.MODEL };
               st.chat.push(msg);
               pending.replaceWith(renderMessage(msg));
             } else {
@@ -697,8 +687,8 @@
             return;
           }
           st.streaming = null;
-          if (raf) cancelAnimationFrame(raf);
-          const msg = { role: 'assistant', kind: 'claude', text: res.text, at: Date.now(), model: res.model, stop: res.stopReason, corte: m.meta.corte };
+          live.stop();
+          const msg = agentMessage(res, st.settings.effort, m.meta.corte);
           if (res.stopReason === 'refusal' || !res.text.trim()) {
             msg.kind = 'local';
             msg.answer = AI.answerLocal(q, m, ctx);
@@ -770,9 +760,10 @@
     }
     wrap.className = 'msg';
     const m = M();
-    const meta = '<div class="answer__meta"><i class="' + (msg.kind === 'claude' ? 'is-claude' : '') + '"></i>' + (msg.kind === 'claude' ? 'Claude · ' + esc(msg.model || AI.MODEL) : 'Motor local') + (msg.corte ? ' · datos al ' + D.fmt(msg.corte) : '') + '</div>';
+    const meta = answerMeta(msg, msg.corte ? ' · datos al ' + D.fmt(msg.corte) : '');
     if (msg.kind === 'claude') {
-      wrap.innerHTML = '<span class="msg__avatar">' + icon('sparkles') + '</span><article class="answer"><div class="answer__md">' + AI.md(msg.text || '') + '</div>' + meta + '</article>';
+      wrap.innerHTML = '<span class="msg__avatar">' + icon('sparkles') + '</span><article class="answer"><div class="answer__md">' + AI.md(msg.text || '') + '</div>' + agentDetails(msg) + meta + '</article>';
+      if (!m.empty) mountCharts(wrap, msg, BIZ_CHARTS, mountViz);
       return wrap;
     }
     const a = msg.answer || {};
@@ -797,6 +788,99 @@
     const vizEl = $('[data-viz]', wrap);
     if (vizEl) requestAnimationFrame(() => mountViz(vizEl, a.viz));
     return wrap;
+  }
+
+  /* ---------- Claude en vivo: razonamiento resumido, cálculos del motor y texto ---------- */
+  function liveAnswer(pending, log) {
+    let ui = null;
+    let raf = 0;
+    let text = '';
+    let thought = '';
+    const chips = {};
+    const mountUi = () => {
+      if (ui) return ui;
+      pending.innerHTML = '<span class="msg__avatar">' + icon('sparkles') + '</span><article class="answer"><div class="agent"><div class="agent__head"><span class="agent__dot"></span><span class="agent__label">Analizando con el motor financiero</span></div><p class="agent__think" hidden></p><div class="agent__tools" hidden></div></div><div class="answer__md"></div></article>';
+      ui = { think: $('.agent__think', pending), tools: $('.agent__tools', pending), md: $('.answer__md', pending), label: $('.agent__label', pending) };
+      return ui;
+    };
+    const paint = () => {
+      raf = 0;
+      const u = mountUi();
+      if (text) {
+        u.think.hidden = true;
+        u.label.textContent = 'Escribiendo la respuesta';
+        u.md.classList.add('cursor-blink');
+        u.md.innerHTML = AI.md(text);
+      } else if (thought) {
+        u.think.hidden = false;
+        u.think.textContent = thought.length > 360 ? '…' + thought.slice(-360).replace(/^\S*\s/, '') : thought;
+      }
+      scrollChat(log);
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(paint);
+    };
+    return {
+      text: (t) => {
+        text = t;
+        schedule();
+      },
+      thinking: (t) => {
+        thought = t;
+        schedule();
+      },
+      tool: (ev) => {
+        const u = mountUi();
+        u.tools.hidden = false;
+        let c = chips[ev.id];
+        if (!c) {
+          c = chips[ev.id] = document.createElement('span');
+          u.tools.appendChild(c);
+        }
+        c.className = 'tool-chip is-' + ev.status;
+        c.innerHTML = icon(ev.status === 'done' ? 'check' : ev.status === 'error' ? 'alert' : 'calculator') + '<span>' + esc(ev.status === 'done' && ev.resumen ? ev.resumen : ev.label + (ev.status === 'error' ? ': no se pudo calcular' : '…')) + '</span>';
+        scrollChat(log);
+      },
+      latest: () => text,
+      stop: () => {
+        if (raf) cancelAnimationFrame(raf);
+        raf = 0;
+      },
+    };
+  }
+  /** Mensaje guardado de una respuesta de Claude (sin datos pesados: los gráficos se recalculan al pintar) */
+  function agentMessage(res, effort, corte) {
+    return {
+      role: 'assistant', kind: 'claude', text: res.text, at: Date.now(), model: res.model, stop: res.stopReason, corte, effort: effort || 'high',
+      thinking: res.thinking ? res.thinking.slice(-6000) : '',
+      calls: (res.calls || []).map((c) => ({ name: c.name, label: c.label, resumen: c.resumen, viz: c.viz })),
+    };
+  }
+  function answerMeta(msg, extra) {
+    const claude = msg.kind === 'claude';
+    return '<div class="answer__meta"><i class="' + (claude ? 'is-claude' : '') + '"></i>' + (claude ? 'Claude · ' + esc(msg.model || AI.MODEL) + (AI.EFFORTS[msg.effort] ? ' · análisis ' + AI.EFFORTS[msg.effort].toLowerCase() : '') : 'Motor local') + (extra || '') + '</div>';
+  }
+  /** «Cómo lo analizó»: cálculos del motor que pidió Claude y su razonamiento resumido */
+  function agentDetails(msg) {
+    const calls = msg.calls || [];
+    if (!calls.length && !msg.thinking) return '';
+    return '<details class="reasoning"><summary>' + icon('cpu') + '<span>Cómo lo analizó' + (calls.length ? ' · ' + calls.length + (calls.length === 1 ? ' cálculo del motor' : ' cálculos del motor') : '') + '</span>' + icon('chevronDown') + '</summary>' +
+      (calls.length ? '<ul class="reasoning__tools">' + calls.map((c) => '<li>' + icon('check') + '<span><b>' + esc(c.label) + '</b>' + (c.resumen ? ' · ' + esc(c.resumen) : '') + '</span></li>').join('') + '</ul>' : '') +
+      (msg.thinking ? '<div class="reasoning__text">' + AI.md(msg.thinking) + '</div>' : '') + '</details>';
+  }
+  const BIZ_CHARTS = { puente: { type: 'bridge' }, proyeccion: { type: 'projection', horizonte: 6 }, cartera: { type: 'aging' }, margen: { type: 'margin' }, gastos: { type: 'expenses' }, salud: { type: 'health' } };
+  /** Monta los gráficos que Claude pidió con [[grafico:ID]]; los de simulación salen del último cálculo de esa respuesta */
+  function mountCharts(wrap, msg, map, mount) {
+    $$('.answer__md [data-chart]', wrap).forEach((el) => {
+      const id = el.dataset.chart;
+      let viz = map[id];
+      if (!viz) {
+        const call = (msg.calls || []).filter((c) => c.viz && (c.viz.type === id || (id === 'escenario' && c.viz.type === 'compare'))).pop();
+        viz = call && call.viz;
+      }
+      if (!viz) return el.remove();
+      requestAnimationFrame(() => mount(el, viz));
+    });
   }
 
   function mountViz(el, viz) {
@@ -1603,9 +1687,12 @@
       '<section class="card span-6 lg-span-12">' + cardHead('sparkles', 'Inteligencia artificial', 'Quién interpreta los resultados del motor') +
       '<div class="validations">' +
       '<label class="validation" style="cursor:pointer"><input type="radio" name="prov" value="local"' + (set.provider !== 'claude' ? ' checked' : '') + ' style="accent-color:var(--brand-2);margin-top:3px"><div><strong>Motor local</strong> <span class="tag tag--good">Gratis · sin conexión</span><p>Explica tus indicadores con reglas financieras sobre los resultados del motor. Funciona sin internet y sin enviar datos.</p></div></label>' +
-      '<label class="validation" style="cursor:pointer"><input type="radio" name="prov" value="claude"' + (set.provider === 'claude' ? ' checked' : '') + ' style="accent-color:var(--brand-2);margin-top:3px"><div><strong>Claude (Anthropic)</strong> <span class="tag tag--info">' + esc(AI.MODEL) + '</span><p>Respuestas conversacionales a cualquier pregunta, siempre basadas en las cifras del motor. Requiere una clave de API de Anthropic.</p></div></label></div>' +
+      '<label class="validation" style="cursor:pointer"><input type="radio" name="prov" value="claude"' + (set.provider === 'claude' ? ' checked' : '') + ' style="accent-color:var(--brand-2);margin-top:3px"><div><strong>Claude (Anthropic)</strong> <span class="tag tag--info">' + esc(AI.MODEL) + '</span><p>Respuestas conversacionales a cualquier pregunta, siempre basadas en las cifras del motor. Puede correr simulaciones, consultar tus movimientos y valorar tu empresa para responderte. Requiere una clave de API de Anthropic.</p></div></label></div>' +
       '<div id="claudeBox" style="margin-top:14px"' + (set.provider === 'claude' ? '' : ' hidden') + '><label class="field"><span>Clave de API de Anthropic</span><span class="input-group"><input class="input" id="apiKey" type="password" autocomplete="off" placeholder="sk-ant-…" value="' + esc(set.apiKey || '') + '" style="padding-right:44px"><button class="icon-btn" type="button" id="showKey" aria-label="Mostrar clave" style="position:absolute;right:4px;width:32px;height:32px">' + icon('eye') + '</button></span></label>' +
       '<div class="answer__actions"><button class="btn btn--light btn--sm" type="button" id="saveKey">' + icon('key') + 'Guardar clave</button><button class="btn btn--sm" type="button" id="testKey">Probar conexión</button><span id="keyMsg" class="muted" style="align-self:center;font-size:12.5px"></span></div>' +
+      '<div class="field" style="margin-top:16px"><span>Profundidad del análisis</span><div class="seg" role="group" aria-label="Profundidad del análisis">' +
+      Object.entries(AI.EFFORTS).map(([v, l]) => '<button type="button" data-effort="' + v + '" aria-pressed="' + ((set.effort || 'high') === v) + '">' + l + '</button>').join('') +
+      '</div><small>Profundo: Claude razona más, corre más simulaciones del motor y responde con más detalle; tarda más y consume más de tu API. Rápido: respuestas ágiles para preguntas simples.</small></div>' +
       '<div class="note" style="margin-top:12px">' + icon('lock') + '<span>La clave se guarda solo en este navegador y la usa el SDK oficial de Anthropic directamente desde aquí. Para ofrecer MobaFinance a clientes, mueve esta llamada a tu servidor para no exponer la clave.</span></div></div></section>' +
       '<section class="card span-12">' + cardHead('database', 'Tus datos', st.ds.source === 'demo' ? 'Estás usando datos de ejemplo' : fmt.num(st.ds.transactions.length) + ' movimientos guardados en este navegador') +
       '<div class="answer__actions" style="margin-top:0"><button class="btn btn--sm" type="button" id="bkExport">' + icon('download') + 'Exportar respaldo (.json)</button><label class="btn btn--sm" style="cursor:pointer">' + icon('upload') + 'Importar respaldo<input type="file" id="bkImport" accept=".json,application/json" hidden></label><button class="btn btn--sm" type="button" id="useDemo2">' + icon('refresh') + 'Restaurar datos de ejemplo</button><button class="btn btn--sm btn--danger" type="button" id="wipe">' + icon('trash') + 'Borrar todo y empezar de cero</button></div>' +
@@ -1625,6 +1712,12 @@
       app().updateChrome();
       if (set.provider === 'claude' && !set.apiKey) $('#apiKey', view).focus();
       else toast(set.provider === 'claude' ? 'El asistente usará Claude.' : 'El asistente usará el motor local.');
+    }));
+    $$('[data-effort]', view).forEach((b) => b.addEventListener('click', () => {
+      set.effort = b.dataset.effort;
+      app().saveSettings();
+      $$('[data-effort]', view).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      toast('Profundidad del análisis: ' + AI.EFFORTS[set.effort].toLowerCase() + '.');
     }));
     $('#showKey', view).addEventListener('click', () => {
       const i = $('#apiKey', view);
@@ -2125,5 +2218,9 @@
     paint();
   }
 
-  MF.views = { panel, analisis, estados, asistente, simulador, valoracion, datos, ajustes, emptyState, mountViz };
+  MF.views = {
+    panel, analisis, estados, asistente, simulador, valoracion, datos, ajustes, emptyState, mountViz,
+    // Piezas compartidas con otras vistas (finanzas personales)
+    kit: { pageHead, cardHead, mini, hbarsHtml, STATUS_COLOR, SEV_LABEL, scrollChat, setComposer, liveAnswer, agentMessage, answerMeta, agentDetails, mountCharts },
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

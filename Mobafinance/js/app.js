@@ -9,13 +9,15 @@
 
   const SETTINGS_KEY = 'mobafinance:settings:v1';
   const CHAT_KEY = 'mobafinance:chat:v1';
-  const TITLES = { panel: 'Panel', analisis: 'Análisis', estados: 'Estados financieros', asistente: 'Asistente IA', simulador: 'Simulador', valoracion: 'Valoración', datos: 'Datos', ajustes: 'Ajustes' };
+  const TITLES = { panel: 'Panel', analisis: 'Análisis', estados: 'Estados financieros', asistente: 'Asistente IA', simulador: 'Simulador', valoracion: 'Valoración', datos: 'Datos', personal: 'Finanzas personales', ajustes: 'Ajustes' };
+  /** Subsección por defecto de cada grupo del menú */
+  const DEFAULT_SUB = { analisis: 'resultados', personal: 'resumen' };
 
   const state = {
     ds: null,
     model: null,
     insights: [],
-    settings: Object.assign({ provider: 'local', apiKey: '', collapsed: false }, store.get(SETTINGS_KEY, {}) || {}),
+    settings: Object.assign({ provider: 'local', apiKey: '', collapsed: false, effort: 'high' }, store.get(SETTINGS_KEY, {}) || {}),
     chat: store.get(CHAT_KEY, []) || [],
     route: { name: 'panel', sub: null, params: {} },
     ui: { dashSeries: 'ventasCaja', datos: { page: 0, q: '', tipo: '', cat: '', mes: '', estado: '', ctx: '' }, val: null, estados: null },
@@ -72,9 +74,10 @@
       render();
     } else location.hash = hash;
   }
-  /** Lleva una pregunta al asistente (desde cualquier vista) */
-  function ask(q, ctx) {
+  /** Lleva una pregunta al asistente (desde cualquier vista). scope: 'empresa' | 'personal' (por defecto, según la sección) */
+  function ask(q, ctx, scope) {
     if (!q) return;
+    if ((scope || (state.route.name === 'personal' ? 'personal' : 'empresa')) === 'personal') return MF.views.personal.ask(q);
     if (state.route.name === 'asistente' && $('#chatLog')) MF.views.asistente.send(q, ctx);
     else {
       state.pendingQuestion = { q, ctx };
@@ -131,8 +134,14 @@
       if (on) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     });
-    $('.nav__group').classList.toggle('is-open', r.name === 'analisis');
-    $$('.nav__sub a').forEach((a) => a.classList.toggle('is-active', r.name === 'analisis' && a.dataset.sub === (r.sub || 'resultados')));
+    $$('.nav__group').forEach((g) => g.classList.toggle('is-open', g.dataset.group === r.name));
+    $$('.nav__sub a').forEach((a) => {
+      const g = a.closest('.nav__group').dataset.group;
+      const on = r.name === g && a.dataset.sub === (r.sub || DEFAULT_SUB[g]);
+      a.classList.toggle('is-active', on);
+      if (on) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
   }
 
   function openMenu() {
@@ -165,7 +174,7 @@
     $('#bellBtn').setAttribute('aria-expanded', 'true');
     $$('[data-ask]', pop).forEach((b) => b.addEventListener('click', () => {
       toggleBell(false);
-      ask(b.getAttribute('data-ask'));
+      ask(b.getAttribute('data-ask'), null, 'empresa');
     }));
   }
 
@@ -179,19 +188,22 @@
     ['WACC y CAPM', '#/valoracion/wacc', 'calculator'], ['Simulador de crédito', '#/valoracion/credito', 'bank'], ['Inversión (VPN y TIR)', '#/valoracion/inversion', 'target'],
     ['Múltiplos', '#/valoracion/multiplos', 'calculator'], ['Movimientos', '#/datos/movimientos', 'table'], ['Importar Excel', '#/datos/importar', 'upload'],
     ['Saldos iniciales', '#/datos/saldos', 'wallet'], ['Validaciones', '#/datos/validaciones', 'shield'], ['Ajustes', '#/ajustes', 'settings'],
+    ['Finanzas personales', '#/personal/resumen', 'user'], ['Mis datos personales (ingresos, gastos, deudas, metas)', '#/personal/datos', 'edit'], ['Plan de deudas personales', '#/personal/deudas', 'card'],
+    ['Metas, fondo de emergencia y futuro', '#/personal/metas', 'target'], ['Asistente de finanzas personales', '#/personal/asistente', 'sparkles'],
   ];
   let searchSel = 0;
   function searchResults(q) {
     const n = util.norm(q);
     const res = [];
-    if (q.trim()) res.push({ group: 'Inteligencia artificial', label: 'Preguntar: «' + q.trim() + '»', icon: 'sparkles', run: () => ask(q.trim()) });
+    const enPersonal = state.route.name === 'personal';
+    if (q.trim()) res.push({ group: 'Inteligencia artificial', label: (enPersonal ? 'Preguntar sobre tus finanzas personales: «' : 'Preguntar: «') + q.trim() + '»', icon: 'sparkles', run: () => ask(q.trim()) });
     NAV_ITEMS.filter(([l]) => !n || util.norm(l).includes(n)).slice(0, n ? 5 : 6).forEach(([l, h, ic]) => res.push({ group: 'Ir a', label: l, icon: ic, run: () => go(h) }));
     const m = state.model;
     if (n && m && !m.empty) {
       Object.entries(MF.engine.IND).filter(([, I]) => util.norm(I.label).includes(n)).slice(0, 4).forEach(([key, I]) => res.push({ group: 'Indicadores', label: I.label, hint: MF.ui.fmtInd(key, m.kpis[key]), icon: 'chart', run: () => go('#/analisis/indicadores') }));
       m.clients.filter((c) => util.norm(c.tercero).includes(n)).slice(0, 4).forEach((c) => res.push({ group: 'Clientes', label: c.tercero, hint: c.saldo ? 'Debe ' + fmt.cop(c.saldo) : 'Al día', icon: 'users', run: () => go('#/analisis/cartera') }));
     }
-    if (!q.trim()) MF.ai.SUGGESTED.slice(0, 3).forEach((s) => res.push({ group: 'Preguntas frecuentes', label: s, icon: 'message', run: () => ask(s) }));
+    if (!q.trim()) (enPersonal ? MF.personal.SUGGESTED : MF.ai.SUGGESTED).slice(0, 3).forEach((s) => res.push({ group: 'Preguntas frecuentes', label: s, icon: 'message', run: () => ask(s) }));
     return res;
   }
   function renderSearch() {

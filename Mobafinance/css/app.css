@@ -781,6 +781,53 @@ svg.chart:focus-visible { outline: 2px solid var(--brand-2); outline-offset: 4px
   .pr-foot { margin-top: 10px; padding-top: 8px; border-top: 1px solid #D1D5DB; color: #6B7280; font-size: 9px; }
 }
 
+/* ---------- Menú: separador de secciones ---------- */
+.nav__sep { display: flex; align-items: center; gap: 10px; margin: 12px 6px 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.nav__sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.app.is-collapsed .nav__sep span { display: none; }
+
+/* ---------- Claude en vivo: razonamiento y cálculos del motor ---------- */
+.agent { display: grid; gap: 10px; padding: 12px 14px; margin-bottom: 12px; border-radius: var(--radius-sm); background: linear-gradient(160deg, rgba(43, 37, 128, .32), rgba(255, 255, 255, .015)); border: 1px solid rgba(107, 92, 240, .28); }
+.agent__head { display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 600; color: #D7D2FF; }
+.agent__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ai-accent); box-shadow: 0 0 0 0 rgba(107, 92, 240, .6); animation: pulse 1.4s ease-out infinite; flex: none; }
+@keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(107, 92, 240, 0); } 100% { box-shadow: 0 0 0 0 rgba(107, 92, 240, 0); } }
+.agent__think { color: var(--ink-2); font-size: 12.5px; line-height: 1.55; white-space: pre-line; max-height: 7.8em; overflow: hidden; -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 1.6em); mask-image: linear-gradient(180deg, transparent 0, #000 1.6em); }
+.agent__tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.tool-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; background: var(--card-2); border: 1px solid var(--line-2); color: var(--ink-2); }
+.tool-chip svg.i { width: 13px; height: 13px; }
+.tool-chip.is-running svg.i, .tool-chip.is-preparing svg.i { color: var(--brand-3); animation: spin 1.6s linear infinite; }
+.tool-chip.is-done { border-color: rgba(12, 163, 12, .35); }
+.tool-chip.is-done svg.i { color: var(--good); }
+.tool-chip.is-error { border-color: rgba(208, 59, 59, .4); }
+.tool-chip.is-error svg.i { color: var(--crit-ink); }
+.reasoning { margin-top: 14px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: rgba(255, 255, 255, .015); }
+.reasoning > summary { display: flex; align-items: center; gap: 8px; padding: 9px 12px; cursor: pointer; list-style: none; font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.reasoning > summary::-webkit-details-marker { display: none; }
+.reasoning > summary svg.i { width: 15px; height: 15px; color: #A99FFF; }
+.reasoning > summary svg.i:last-child { margin-left: auto; color: var(--muted); transition: transform .2s; }
+.reasoning[open] > summary svg.i:last-child { transform: rotate(180deg); }
+.reasoning__tools { list-style: none; margin: 0; padding: 0 12px 10px !important; display: grid; gap: 6px; }
+.reasoning__tools li { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; }
+.reasoning__tools svg.i { width: 14px; height: 14px; color: var(--good); margin-top: 2px; }
+.reasoning__tools b { color: var(--ink); font-weight: 600; }
+.reasoning__text { padding: 10px 12px 4px; border-top: 1px solid var(--line); font-size: 12.5px; }
+.reasoning__text p { color: var(--muted) !important; margin: 0 0 8px !important; }
+
+/* ---------- Finanzas personales ---------- */
+.insight__ctx { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.goal__note { display: flex; gap: 8px; margin-top: 6px; font-size: 12px; color: var(--ink-2); }
+.goal__note svg.i { width: 14px; height: 14px; color: #A99FFF; flex: none; margin-top: 1px; }
+.goal__actions { margin-top: 6px; }
+.goal__actions .link-btn { font-size: 12px; }
+.goal__actions .link-btn svg.i { width: 13px; height: 13px; }
+.health .dim small { font-size: 11.5px; }
+.stack-legend small { font-size: 11.5px; }
+.field > .seg { justify-self: start; max-width: 100%; }
+.cell-wide { min-width: 220px; }
+.msg--report { max-width: none; }
+.msg--report .msg__avatar { display: none; }
+.msg--report .answer { border-radius: var(--radius-sm); }
+
 /* ---------- Responsivo ---------- */
 @media (max-width: 1360px) {
   .sim { grid-template-columns: 320px minmax(0, 1fr); }
